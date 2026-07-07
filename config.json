@@ -1,0 +1,14 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8080
+  },
+  "scanner": {
+    "trade_limit": 30,
+    "concurrency": 10
+  },
+  "exchanges": {
+    "bitmart": true,
+    "mexc": false
+  }
+}
