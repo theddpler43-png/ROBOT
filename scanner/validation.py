@@ -10,10 +10,15 @@ from scanner.models import MarketRow
 ROOT = Path(__file__).resolve().parent.parent
 LOGS_DIR = ROOT / "logs"
 
+DEFAULT_TOP = 50
 
-def export_validation(markets: list[MarketRow]) -> Path:
+
+def export_validation(
+    markets: list[MarketRow],
+    top: int = DEFAULT_TOP,
+) -> Path:
     """
-    Сохраняет результаты полного сканирования
+    Сохраняет TOP рынков по Score
     для последующего анализа качества алгоритма.
     """
 
@@ -23,18 +28,23 @@ def export_validation(markets: list[MarketRow]) -> Path:
 
     filename = LOGS_DIR / f"validation_{timestamp}.json"
 
+    ranked = sorted(
+        markets,
+        key=lambda m: (
+            m.score is None,
+            -(m.score or 0),
+        ),
+    )
+
+    ranked = ranked[:top]
+
     payload = {
         "created": datetime.now().isoformat(),
-        "count": len(markets),
+        "count": len(ranked),
+        "top": top,
         "markets": [
             market.to_dict()
-            for market in sorted(
-                markets,
-                key=lambda m: (
-                    m.score is None,
-                    -(m.score or 0),
-                ),
-            )
+            for market in ranked
         ],
     }
 
