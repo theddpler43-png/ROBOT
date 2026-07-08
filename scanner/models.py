@@ -10,6 +10,7 @@ class MarketRow:
     execution_ratio: float | None
     uniformity: float | None
     price_smoothness: float | None
+    execution_rhythm: float | None
 
     # Анализ рынка
     score: float | None
