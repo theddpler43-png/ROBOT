@@ -1,22 +1,23 @@
-from dataclasses import dataclass, asdict
-from typing import Any
+from dataclasses import asdict, dataclass
 
 
-@dataclass
+@dataclass(slots=True)
 class MarketRow:
     exchange: str
     symbol: str
-    price: float | None
-    bid1: float | None
-    ask1: float | None
-    spread_pct: float | None
-    top5_bid_usdt: float
-    top5_ask_usdt: float
-    top5_total_usdt: float
-    execution_pct: float | None
-    uniformity: float | None
-    trades_count: int
-    error: str | None = None
 
-    def to_dict(self) -> dict[str, Any]:
+    execution_ratio: float | None
+    uniformity: float | None
+
+    spread: float | None
+
+    top5_bid: float
+    top5_ask: float
+    top5_total: float
+
+    price: float | None
+
+    price_smoothness: float | None = None
+
+    def to_dict(self) -> dict:
         return asdict(self)
