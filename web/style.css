@@ -238,3 +238,33 @@ tbody tr:hover {
     padding: 60px;
     color: #7f889d;
 }
+
+/* ===========================
+   Metrics
+=========================== */
+
+.symbol-cell {
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.number {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-family: Consolas, "Courier New", monospace;
+}
+
+.metric-good {
+    color: #2ecc71;
+    font-weight: 700;
+}
+
+.metric-mid {
+    color: #f1c40f;
+    font-weight: 700;
+}
+
+.metric-bad {
+    color: #e74c3c;
+    font-weight: 700;
+}
