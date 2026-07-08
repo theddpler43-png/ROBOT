@@ -3,11 +3,121 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Algo Activity Scanner v9</title>
+  <title>ROBOT Browser V9</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Algo Activity Scanner v9</h1>
-  <p>Browser V9 запущен. Следующий шаг — подключим дизайн и таблицу.</p>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">R9</div>
+        <div>
+          <h1>ROBOT Browser</h1>
+          <p>Market-maker scanner</p>
+        </div>
+      </div>
+
+      <section class="panel">
+        <div class="panel-title">Scan Progress</div>
+
+        <div class="progress-meta">
+          <span id="scanStatus">Loading</span>
+          <span id="scanCount">0 / 0</span>
+        </div>
+
+        <div class="progress-track">
+          <div id="scanProgressBar" class="progress-bar"></div>
+        </div>
+
+        <div class="small-row">
+          <span>Last update</span>
+          <strong id="lastUpdate">—</strong>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">Filters</div>
+
+        <label class="field">
+          <span>Exchange</span>
+          <select id="exchangeFilter">
+            <option value="">All exchanges</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Symbol search</span>
+          <input id="symbolFilter" type="text" placeholder="PLB, BTC, ETH..." />
+        </label>
+
+        <label class="field">
+          <span>Min Execution %</span>
+          <input id="minExecutionFilter" type="number" min="0" max="100" step="1" value="0" />
+        </label>
+
+        <label class="field">
+          <span>Min Uniformity %</span>
+          <input id="minUniformityFilter" type="number" min="0" max="100" step="1" value="0" />
+        </label>
+
+        <label class="field">
+          <span>Max Spread %</span>
+          <input id="maxSpreadFilter" type="number" min="0" step="0.01" placeholder="No limit" />
+        </label>
+
+        <button id="resetFiltersBtn" class="ghost-button" type="button">Reset filters</button>
+      </section>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">Live terminal</div>
+          <h2>Predictable Markets</h2>
+        </div>
+
+        <div class="summary">
+          <div>
+            <span>Total</span>
+            <strong id="totalMarkets">0</strong>
+          </div>
+          <div>
+            <span>Visible</span>
+            <strong id="visibleMarkets">0</strong>
+          </div>
+          <div>
+            <span>Best Execution</span>
+            <strong id="bestExecution">—</strong>
+          </div>
+        </div>
+      </header>
+
+      <section class="table-card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-sort="exchange">Exchange</th>
+                <th data-sort="symbol">Symbol</th>
+                <th data-sort="execution_ratio">Execution %</th>
+                <th data-sort="uniformity">Uniformity %</th>
+                <th data-sort="spread">Spread %</th>
+                <th data-sort="top5_bid">Top5 Bid</th>
+                <th data-sort="top5_ask">Top5 Ask</th>
+                <th data-sort="top5_total">Top5 Total</th>
+                <th data-sort="price">Price</th>
+              </tr>
+            </thead>
+            <tbody id="marketsBody">
+              <tr>
+                <td colspan="9" class="empty-state">Waiting for market data...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
 
   <script src="app.js"></script>
 </body>
