@@ -4,6 +4,7 @@ import {
     renderTable,
     sortMarkets,
     updateSortIndicators,
+    initializeTable,
 } from "./table.js";
 
 import {
@@ -14,7 +15,7 @@ import {
 
 const state = {
     markets: [],
-    sortKey: "execution_ratio",
+    sortKey: "score",
     sortDirection: "desc",
     isLoading: false,
 };
@@ -53,6 +54,7 @@ async function loadMarkets() {
 
         updateProgress(payload);
         updateExchangeOptions(state.markets, elements);
+
         render();
 
     } catch (error) {
@@ -124,36 +126,38 @@ function render() {
 
 function setupSorting() {
 
-    document
-        .querySelectorAll("th[data-sort]")
-        .forEach((header) => {
+    document.addEventListener(
+        "click",
+        (event) => {
 
-            header.addEventListener("click", () => {
+            const header =
+                event.target.closest("th[data-sort]");
 
-                const key =
-                    header.dataset.sort;
+            if (!header) {
+                return;
+            }
 
-                if (
-                    state.sortKey === key
-                ) {
+            const key =
+                header.dataset.sort;
 
-                    state.sortDirection =
-                        state.sortDirection === "asc"
-                            ? "desc"
-                            : "asc";
+            if (state.sortKey === key) {
 
-                } else {
+                state.sortDirection =
+                    state.sortDirection === "asc"
+                        ? "desc"
+                        : "asc";
 
-                    state.sortKey = key;
-                    state.sortDirection = "desc";
+            } else {
 
-                }
+                state.sortKey = key;
+                state.sortDirection = "desc";
 
-                render();
+            }
 
-            });
+            render();
 
-        });
+        }
+    );
 
 }
 
@@ -191,6 +195,8 @@ function setupFilters() {
     );
 
 }
+
+initializeTable();
 
 setupSorting();
 setupFilters();
