@@ -216,38 +216,6 @@ def calc_price_smoothness(trades: list[dict]) -> float | None:
     return round(max(0.0, min(100.0, score)), 2)
 
 
-def calc_market_score(
-    execution: float | None,
-    uniformity: float | None,
-    smoothness: float | None,
-) -> float | None:
-    if execution is None:
-        return None
-
-    if uniformity is None:
-        return None
-
-    if smoothness is None:
-        return None
-
-    score = (
-        execution * 0.45
-        + uniformity * 0.30
-        + smoothness * 0.25
-    )
-
-    if execution < 60:
-        score *= 0.50
-
-    if uniformity < 40:
-        score *= 0.60
-
-    if smoothness < 40:
-        score *= 0.70
-
-    return round(max(0.0, min(100.0, score)), 2)
-
-
 def _prices_from_levels(levels: list) -> list[float]:
     prices: list[float] = []
 
