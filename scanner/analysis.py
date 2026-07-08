@@ -71,20 +71,51 @@ def _calc_score(
     uniformity: float | None,
     smoothness: float | None,
 ) -> float | None:
-    if execution is None:
+    if (
+        execution is None
+        or uniformity is None
+        or smoothness is None
+    ):
         return None
 
-    if uniformity is None:
-        return None
+    base_score = _calc_base_score(
+        execution,
+        uniformity,
+        smoothness,
+    )
 
-    if smoothness is None:
-        return None
+    final_score = _apply_penalties(
+        base_score=base_score,
+        execution=execution,
+        uniformity=uniformity,
+        smoothness=smoothness,
+    )
 
-    score = (
+    return round(
+        max(0.0, min(final_score, 100.0)),
+        2,
+    )
+
+
+def _calc_base_score(
+    execution: float,
+    uniformity: float,
+    smoothness: float,
+) -> float:
+    return (
         execution * 0.45
         + uniformity * 0.30
         + smoothness * 0.25
     )
+
+
+def _apply_penalties(
+    base_score: float,
+    execution: float,
+    uniformity: float,
+    smoothness: float,
+) -> float:
+    score = base_score
 
     if execution < 60:
         score *= 0.50
@@ -95,7 +126,7 @@ def _calc_score(
     if smoothness < 40:
         score *= 0.70
 
-    return round(max(0.0, min(score, 100.0)), 2)
+    return score
 
 
 def _calc_confidence(
@@ -103,13 +134,11 @@ def _calc_confidence(
     uniformity: float | None,
     smoothness: float | None,
 ) -> str:
-    if execution is None:
-        return "LOW"
-
-    if uniformity is None:
-        return "LOW"
-
-    if smoothness is None:
+    if (
+        execution is None
+        or uniformity is None
+        or smoothness is None
+    ):
         return "LOW"
 
     minimum = min(
