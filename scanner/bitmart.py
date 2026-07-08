@@ -132,6 +132,7 @@ async def scan_symbol(
             execution=execution_ratio,
             uniformity=uniformity,
             smoothness=price_smoothness,
+            execution_rhythm=execution_rhythm,
         )
 
         return MarketRow(
