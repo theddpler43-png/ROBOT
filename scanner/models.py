@@ -6,9 +6,15 @@ class MarketRow:
     exchange: str
     symbol: str
 
+    # Основные метрики
     execution_ratio: float | None
     uniformity: float | None
+    price_smoothness: float | None
 
+    # Итоговая оценка
+    score: float | None
+
+    # Рыночные данные
     spread: float | None
 
     top5_bid: float
@@ -16,8 +22,6 @@ class MarketRow:
     top5_total: float
 
     price: float | None
-
-    price_smoothness: float | None = None
 
     def to_dict(self) -> dict:
         return asdict(self)
