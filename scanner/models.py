@@ -11,8 +11,9 @@ class MarketRow:
     uniformity: float | None
     price_smoothness: float | None
 
-    # Итоговая оценка
+    # Итоговая оценка рынка
     score: float | None
+    confidence: str
 
     # Рыночные данные
     spread: float | None
