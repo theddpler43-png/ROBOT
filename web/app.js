@@ -2,6 +2,7 @@ const state = {
     markets: [],
     sortKey: "execution_ratio",
     sortDirection: "desc",
+    isLoading: false,
 };
 
 const elements = {
@@ -25,6 +26,12 @@ const elements = {
 };
 
 async function loadMarkets() {
+    if (state.isLoading) {
+        return;
+    }
+
+    state.isLoading = true;
+
     try {
         const response = await fetch("/markets", { cache: "no-store" });
 
@@ -41,6 +48,8 @@ async function loadMarkets() {
     } catch (error) {
         elements.scanStatus.textContent = "Connection error";
         console.error("Failed to load markets:", error);
+    } finally {
+        state.isLoading = false;
     }
 }
 
