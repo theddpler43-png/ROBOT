@@ -78,7 +78,9 @@ function updateProgress(payload) {
 
 function updateExchangeOptions() {
     const currentValue = elements.exchangeFilter.value;
-    const exchanges = Array.from(new Set(state.markets.map((market) => market.exchange).filter(Boolean))).sort();
+    const exchanges = Array.from(
+        new Set(state.markets.map((market) => market.exchange).filter(Boolean))
+    ).sort();
 
     const existingValues = Array.from(elements.exchangeFilter.options).map((option) => option.value);
     const nextValues = ["", ...exchanges];
@@ -155,6 +157,7 @@ function render() {
 
     updateSummary(filteredMarkets);
     renderTable(sortedMarkets);
+    updateSortIndicators();
 }
 
 function updateSummary(filteredMarkets) {
@@ -184,23 +187,54 @@ function renderTable(markets) {
         <tr>
             <td>${escapeHtml(market.exchange)}</td>
             <td class="symbol-cell">${escapeHtml(market.symbol)}</td>
-<td class="number ${metricClass(market.execution_ratio)}">
-    ${formatPercent(market.execution_ratio)}
-</td>
-
-<td class="number ${metricClass(market.uniformity)}">
-    ${formatPercent(market.uniformity)}
-</td>
-
-<td class="number ${spreadClass(market.spread)}">
-    ${formatPercent(market.spread)}
-</td>
-            <td>${formatNumber(market.top5_bid)}</td>
-            <td>${formatNumber(market.top5_ask)}</td>
-            <td>${formatNumber(market.top5_total)}</td>
-            <td>${formatPrice(market.price)}</td>
+            <td class="number ${metricClass(market.execution_ratio)}">${formatPercent(market.execution_ratio)}</td>
+            <td class="number ${metricClass(market.uniformity)}">${formatPercent(market.uniformity)}</td>
+            <td class="number ${spreadClass(market.spread)}">${formatPercent(market.spread)}</td>
+            <td class="number">${formatNumber(market.top5_bid)}</td>
+            <td class="number">${formatNumber(market.top5_ask)}</td>
+            <td class="number">${formatNumber(market.top5_total)}</td>
+            <td class="number">${formatPrice(market.price)}</td>
         </tr>
     `).join("");
+}
+
+function updateSortIndicators() {
+    document.querySelectorAll("th[data-sort]").forEach((header) => {
+        const key = header.dataset.sort;
+        const label = header.dataset.label || header.textContent.replace(" ▲", "").replace(" ▼", "");
+
+        header.dataset.label = label;
+
+        if (key === state.sortKey) {
+            header.textContent = `${label} ${state.sortDirection === "asc" ? "▲" : "▼"}`;
+        } else {
+            header.textContent = label;
+        }
+    });
+}
+
+function metricClass(value) {
+    if (value >= 80) {
+        return "metric-good";
+    }
+
+    if (value >= 50) {
+        return "metric-mid";
+    }
+
+    return "metric-bad";
+}
+
+function spreadClass(value) {
+    if (value <= 0.05) {
+        return "metric-good";
+    }
+
+    if (value <= 0.2) {
+        return "metric-mid";
+    }
+
+    return "metric-bad";
 }
 
 function formatPercent(value) {
