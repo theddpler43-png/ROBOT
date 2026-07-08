@@ -5,7 +5,12 @@ import {
     sortMarkets,
     updateSortIndicators,
 } from "./table.js";
-import { numberValue } from "./utils.js";
+
+import {
+    getFilteredMarkets,
+    resetFilters,
+    updateExchangeOptions,
+} from "./filters.js";
 
 const state = {
     markets: [],
@@ -47,122 +52,112 @@ async function loadMarkets() {
         state.markets = payload.markets;
 
         updateProgress(payload);
-        updateExchangeOptions();
+        updateExchangeOptions(state.markets, elements);
         render();
+
     } catch (error) {
+
+        console.error(error);
+
         elements.scanStatus.textContent = "Connection error";
-        console.error("Failed to load markets:", error);
+
     } finally {
+
         state.isLoading = false;
+
     }
 }
 
 function updateProgress(payload) {
-    const percent = payload.total > 0
-        ? Math.min(100, Math.round((payload.count / payload.total) * 100))
-        : 0;
+
+    const percent =
+        payload.total > 0
+            ? Math.min(
+                  100,
+                  Math.round(payload.count / payload.total * 100)
+              )
+            : 0;
 
     elements.scanStatus.textContent = payload.status;
-    elements.scanCount.textContent = `${payload.count} / ${payload.total}`;
-    elements.scanProgressBar.style.width = `${percent}%`;
-    elements.lastUpdate.textContent = new Date().toLocaleTimeString();
-}
 
-function updateExchangeOptions() {
-    const currentValue = elements.exchangeFilter.value;
+    elements.scanCount.textContent =
+        `${payload.count} / ${payload.total}`;
 
-    const exchanges = Array.from(
-        new Set(state.markets.map((market) => market.exchange).filter(Boolean))
-    ).sort();
+    elements.scanProgressBar.style.width =
+        `${percent}%`;
 
-    const existingValues = Array.from(elements.exchangeFilter.options)
-        .map((option) => option.value);
-
-    const nextValues = ["", ...exchanges];
-
-    if (existingValues.join("|") === nextValues.join("|")) {
-        return;
-    }
-
-    elements.exchangeFilter.innerHTML =
-        `<option value="">All exchanges</option>`;
-
-    exchanges.forEach((exchange) => {
-        const option = document.createElement("option");
-        option.value = exchange;
-        option.textContent = exchange;
-        elements.exchangeFilter.appendChild(option);
-    });
-
-    elements.exchangeFilter.value =
-        exchanges.includes(currentValue) ? currentValue : "";
-}
-
-function getFilteredMarkets() {
-    const exchange = elements.exchangeFilter.value;
-    const symbol = elements.symbolFilter.value.trim().toUpperCase();
-
-    const minExecution = numberValue(elements.minExecutionFilter.value);
-    const minUniformity = numberValue(elements.minUniformityFilter.value);
-
-    const maxSpreadRaw = elements.maxSpreadFilter.value;
-    const maxSpread =
-        maxSpreadRaw === "" ? null : numberValue(maxSpreadRaw);
-
-    return state.markets.filter((market) => {
-        if (exchange && market.exchange !== exchange) {
-            return false;
-        }
-
-        if (symbol && !market.symbol.toUpperCase().includes(symbol)) {
-            return false;
-        }
-
-        if (market.execution_ratio < minExecution) {
-            return false;
-        }
-
-        if (market.uniformity < minUniformity) {
-            return false;
-        }
-
-        if (maxSpread !== null && market.spread > maxSpread) {
-            return false;
-        }
-
-        return true;
-    });
+    elements.lastUpdate.textContent =
+        new Date().toLocaleTimeString();
 }
 
 function render() {
-    const filteredMarkets = getFilteredMarkets();
-    const sortedMarkets = sortMarkets(
-        filteredMarkets,
+
+    const filteredMarkets =
+        getFilteredMarkets(
+            state.markets,
+            elements
+        );
+
+    const sortedMarkets =
+        sortMarkets(
+            filteredMarkets,
+            state.sortKey,
+            state.sortDirection
+        );
+
+    renderSummary(
+        elements,
+        state.markets,
+        filteredMarkets
+    );
+
+    renderTable(
+        elements,
+        sortedMarkets
+    );
+
+    updateSortIndicators(
         state.sortKey,
         state.sortDirection
     );
-
-    renderSummary(elements, state.markets, filteredMarkets);
-    renderTable(elements, sortedMarkets);
-    updateSortIndicators(state.sortKey, state.sortDirection);
 }
 
-function setupEvents() {
-    document.querySelectorAll("th[data-sort]").forEach((header) => {
-        header.addEventListener("click", () => {
-            const key = header.dataset.sort;
+function setupSorting() {
 
-            if (state.sortKey === key) {
-                state.sortDirection =
-                    state.sortDirection === "asc" ? "desc" : "asc";
-            } else {
-                state.sortKey = key;
-                state.sortDirection = "desc";
-            }
+    document
+        .querySelectorAll("th[data-sort]")
+        .forEach((header) => {
 
-            render();
+            header.addEventListener("click", () => {
+
+                const key =
+                    header.dataset.sort;
+
+                if (
+                    state.sortKey === key
+                ) {
+
+                    state.sortDirection =
+                        state.sortDirection === "asc"
+                            ? "desc"
+                            : "asc";
+
+                } else {
+
+                    state.sortKey = key;
+                    state.sortDirection = "desc";
+
+                }
+
+                render();
+
+            });
+
         });
-    });
+
+}
+
+function setupFilters() {
 
     [
         elements.exchangeFilter,
@@ -171,21 +166,35 @@ function setupEvents() {
         elements.minUniformityFilter,
         elements.maxSpreadFilter,
     ].forEach((element) => {
-        element.addEventListener("input", render);
-        element.addEventListener("change", render);
+
+        element.addEventListener(
+            "input",
+            render
+        );
+
+        element.addEventListener(
+            "change",
+            render
+        );
+
     });
 
-    elements.resetFiltersBtn.addEventListener("click", () => {
-        elements.exchangeFilter.value = "";
-        elements.symbolFilter.value = "";
-        elements.minExecutionFilter.value = "0";
-        elements.minUniformityFilter.value = "0";
-        elements.maxSpreadFilter.value = "";
+    elements.resetFiltersBtn.addEventListener(
+        "click",
+        () => {
 
-        render();
-    });
+            resetFilters(elements);
+
+            render();
+
+        }
+    );
+
 }
 
-setupEvents();
+setupSorting();
+setupFilters();
+
 loadMarkets();
+
 setInterval(loadMarkets, 1000);
