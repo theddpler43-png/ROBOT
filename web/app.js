@@ -184,9 +184,17 @@ function renderTable(markets) {
         <tr>
             <td>${escapeHtml(market.exchange)}</td>
             <td class="symbol-cell">${escapeHtml(market.symbol)}</td>
-            <td>${formatPercent(market.execution_ratio)}</td>
-            <td>${formatPercent(market.uniformity)}</td>
-            <td>${formatPercent(market.spread)}</td>
+<td class="number ${metricClass(market.execution_ratio)}">
+    ${formatPercent(market.execution_ratio)}
+</td>
+
+<td class="number ${metricClass(market.uniformity)}">
+    ${formatPercent(market.uniformity)}
+</td>
+
+<td class="number ${spreadClass(market.spread)}">
+    ${formatPercent(market.spread)}
+</td>
             <td>${formatNumber(market.top5_bid)}</td>
             <td>${formatNumber(market.top5_ask)}</td>
             <td>${formatNumber(market.top5_total)}</td>
