@@ -1,0 +1,80 @@
+export const COLUMNS = [
+    {
+        key: "score",
+        title: "Score",
+        type: "score",
+        sortable: true,
+    },
+    {
+        key: "pattern",
+        title: "Pattern",
+        type: "text",
+        sortable: true,
+    },
+    {
+        key: "confidence",
+        title: "Confidence",
+        type: "confidence",
+        sortable: true,
+    },
+    {
+        key: "exchange",
+        title: "Exchange",
+        type: "text",
+        sortable: true,
+    },
+    {
+        key: "symbol",
+        title: "Symbol",
+        type: "symbol",
+        sortable: true,
+    },
+    {
+        key: "execution_ratio",
+        title: "Execution %",
+        type: "metric",
+        sortable: true,
+    },
+    {
+        key: "uniformity",
+        title: "Uniformity %",
+        type: "metric",
+        sortable: true,
+    },
+    {
+        key: "price_smoothness",
+        title: "Smoothness %",
+        type: "metric",
+        sortable: true,
+    },
+    {
+        key: "spread",
+        title: "Spread %",
+        type: "spread",
+        sortable: true,
+    },
+    {
+        key: "top5_bid",
+        title: "Top5 Bid",
+        type: "number",
+        sortable: true,
+    },
+    {
+        key: "top5_ask",
+        title: "Top5 Ask",
+        type: "number",
+        sortable: true,
+    },
+    {
+        key: "top5_total",
+        title: "Top5 Total",
+        type: "number",
+        sortable: true,
+    },
+    {
+        key: "price",
+        title: "Price",
+        type: "price",
+        sortable: true,
+    },
+];
