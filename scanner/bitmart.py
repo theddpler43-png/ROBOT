@@ -91,10 +91,19 @@ async def fetch_trades(
     trades: list[dict] = []
 
     for row in rows:
+        if not isinstance(row, list):
+            continue
+
+        if len(row) < 5:
+            continue
+
         trades.append(
             {
-                "price": row.get("price"),
-                "amount": row.get("size"),
+                "symbol": row[0],
+                "timestamp": int(row[1]),
+                "price": row[2],
+                "amount": row[3],
+                "side": str(row[4]).lower(),
             }
         )
 
