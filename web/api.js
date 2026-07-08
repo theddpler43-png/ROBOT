@@ -2,7 +2,7 @@ import { numberValue } from "./utils.js";
 
 export async function fetchMarkets() {
     const response = await fetch("/markets", {
-        cache: "no-store"
+        cache: "no-store",
     });
 
     if (!response.ok) {
@@ -15,7 +15,7 @@ export async function fetchMarkets() {
         status: payload.status || "Running",
         count: numberValue(payload.count),
         total: numberValue(payload.total),
-        markets: normalizeMarkets(payload.markets || [])
+        markets: normalizeMarkets(payload.markets || []),
     };
 }
 
@@ -24,15 +24,32 @@ function normalizeMarkets(markets) {
         exchange: market.exchange || "",
         symbol: market.symbol || "",
 
-        execution_ratio: numberValue(market.execution_ratio),
-        uniformity: numberValue(market.uniformity),
+        execution_ratio: numberValue(
+            market.execution_ratio ?? market.execution_pct
+        ),
 
-        spread: numberValue(market.spread),
+        uniformity: numberValue(
+            market.uniformity
+        ),
 
-        top5_bid: numberValue(market.top5_bid),
-        top5_ask: numberValue(market.top5_ask),
-        top5_total: numberValue(market.top5_total),
+        spread: numberValue(
+            market.spread ?? market.spread_pct
+        ),
 
-        price: numberValue(market.price)
+        top5_bid: numberValue(
+            market.top5_bid ?? market.top5_bid_usdt
+        ),
+
+        top5_ask: numberValue(
+            market.top5_ask ?? market.top5_ask_usdt
+        ),
+
+        top5_total: numberValue(
+            market.top5_total ?? market.top5_total_usdt
+        ),
+
+        price: numberValue(
+            market.price
+        ),
     }));
 }
