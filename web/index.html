@@ -86,7 +86,7 @@
             <strong id="visibleMarkets">0</strong>
           </div>
           <div>
-            <span>Best Execution</span>
+            <span>Best Score</span>
             <strong id="bestExecution">—</strong>
           </div>
         </div>
@@ -95,22 +95,10 @@
       <section class="table-card">
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr>
-                <th data-sort="exchange">Exchange</th>
-                <th data-sort="symbol">Symbol</th>
-                <th data-sort="execution_ratio">Execution %</th>
-                <th data-sort="uniformity">Uniformity %</th>
-                <th data-sort="spread">Spread %</th>
-                <th data-sort="top5_bid">Top5 Bid</th>
-                <th data-sort="top5_ask">Top5 Ask</th>
-                <th data-sort="top5_total">Top5 Total</th>
-                <th data-sort="price">Price</th>
-              </tr>
-            </thead>
+            <thead id="marketsHead"></thead>
             <tbody id="marketsBody">
               <tr>
-                <td colspan="9" class="empty-state">Waiting for market data...</td>
+                <td class="empty-state">Waiting for market data...</td>
               </tr>
             </tbody>
           </table>
