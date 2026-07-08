@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import aiohttp
 
+from scanner.analysis import analyze_market
 from scanner.metrics import (
     calc_execution_pct,
     calc_price_and_spread,
@@ -10,7 +11,6 @@ from scanner.metrics import (
     calc_uniformity,
 )
 from scanner.models import MarketRow
-from scanner.score import calc_confidence, calc_market_score
 
 
 BASE_URL = "https://api-cloud.bitmart.com"
@@ -117,16 +117,10 @@ async def scan_symbol(
         uniformity = calc_uniformity(trades)
         price_smoothness = calc_price_smoothness(trades)
 
-        score = calc_market_score(
-            execution_ratio,
-            uniformity,
-            price_smoothness,
-        )
-
-        confidence = calc_confidence(
-            execution_ratio,
-            uniformity,
-            price_smoothness,
+        analysis = analyze_market(
+            execution=execution_ratio,
+            uniformity=uniformity,
+            smoothness=price_smoothness,
         )
 
         return MarketRow(
@@ -135,8 +129,9 @@ async def scan_symbol(
             execution_ratio=execution_ratio,
             uniformity=uniformity,
             price_smoothness=price_smoothness,
-            score=score,
-            confidence=confidence,
+            score=analysis.score,
+            confidence=analysis.confidence,
+            pattern=analysis.pattern,
             spread=spread,
             top5_bid=round(top5_bid, 2),
             top5_ask=round(top5_ask, 2),
@@ -153,6 +148,7 @@ async def scan_symbol(
             price_smoothness=None,
             score=None,
             confidence="LOW",
+            pattern="UNKNOWN",
             spread=None,
             top5_bid=0.0,
             top5_ask=0.0,
