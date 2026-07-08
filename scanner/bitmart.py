@@ -4,13 +4,13 @@ import aiohttp
 
 from scanner.metrics import (
     calc_execution_pct,
-    calc_market_score,
     calc_price_and_spread,
     calc_price_smoothness,
     calc_top5_depth,
     calc_uniformity,
 )
 from scanner.models import MarketRow
+from scanner.score import calc_confidence, calc_market_score
 
 
 BASE_URL = "https://api-cloud.bitmart.com"
@@ -123,6 +123,12 @@ async def scan_symbol(
             price_smoothness,
         )
 
+        confidence = calc_confidence(
+            execution_ratio,
+            uniformity,
+            price_smoothness,
+        )
+
         return MarketRow(
             exchange="BitMart",
             symbol=symbol.replace("_", "/"),
@@ -130,6 +136,7 @@ async def scan_symbol(
             uniformity=uniformity,
             price_smoothness=price_smoothness,
             score=score,
+            confidence=confidence,
             spread=spread,
             top5_bid=round(top5_bid, 2),
             top5_ask=round(top5_ask, 2),
@@ -145,6 +152,7 @@ async def scan_symbol(
             uniformity=None,
             price_smoothness=None,
             score=None,
+            confidence="LOW",
             spread=None,
             top5_bid=0.0,
             top5_ask=0.0,
