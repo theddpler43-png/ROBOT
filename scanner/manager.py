@@ -45,6 +45,7 @@ async def run_scan():
     dev_symbol_limit = scanner_config.get("dev_symbol_limit")
 
     async with aiohttp.ClientSession() as session:
+
         print("Получение списка пар BitMart...")
 
         symbols = await fetch_symbols(session)
@@ -56,21 +57,51 @@ async def run_scan():
 
         print(f"К проверке: {total} USDT пар")
 
-        markets: list[dict] = []
         semaphore = asyncio.Semaphore(concurrency)
+
+        markets: list[dict] = []
 
         save(markets, total, "running")
 
         async def worker(symbol: str):
+
             async with semaphore:
-                row = await scan_symbol(session, symbol, trade_limit)
+
+                row = await scan_symbol(
+                    session,
+                    symbol,
+                    trade_limit,
+                )
+
                 markets.append(row.to_dict())
 
-                if len(markets) % 5 == 0:
-                    save(markets, total, "running")
-                    print(f"{len(markets)}/{total}")
+                # Всегда сортируем по Symbol для стабильного Browser
+                markets.sort(key=lambda x: x["symbol"])
 
-        await asyncio.gather(*(worker(symbol) for symbol in symbols))
+                # Сохраняем после каждой пары
+                save(
+                    markets,
+                    total,
+                    "running",
+                )
 
-        save(markets, total, "complete")
-        print(f"Scan complete: {len(markets)}/{total}")
+                print(
+                    f"{len(markets)}/{total}  {symbol}"
+                )
+
+        await asyncio.gather(
+            *(
+                worker(symbol)
+                for symbol in symbols
+            )
+        )
+
+        save(
+            markets,
+            total,
+            "complete",
+        )
+
+        print(
+            f"Scan complete: {len(markets)}/{total}"
+        )
