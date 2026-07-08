@@ -5,6 +5,7 @@ import aiohttp
 from scanner.analysis import analyze_market
 from scanner.metrics import (
     calc_execution_pct,
+    calc_execution_rhythm,
     calc_price_and_spread,
     calc_price_smoothness,
     calc_top5_depth,
@@ -125,6 +126,7 @@ async def scan_symbol(
         execution_ratio = calc_execution_pct(trades, orderbook)
         uniformity = calc_uniformity(trades)
         price_smoothness = calc_price_smoothness(trades)
+        execution_rhythm = calc_execution_rhythm(trades)
 
         analysis = analyze_market(
             execution=execution_ratio,
@@ -138,6 +140,7 @@ async def scan_symbol(
             execution_ratio=execution_ratio,
             uniformity=uniformity,
             price_smoothness=price_smoothness,
+            execution_rhythm=execution_rhythm,
             score=analysis.score,
             confidence=analysis.confidence,
             pattern=analysis.pattern,
@@ -155,6 +158,7 @@ async def scan_symbol(
             execution_ratio=None,
             uniformity=None,
             price_smoothness=None,
+            execution_rhythm=None,
             score=None,
             confidence="LOW",
             pattern="UNKNOWN",
