@@ -5,7 +5,9 @@
   },
   "scanner": {
     "trade_limit": 30,
-    "concurrency": 10
+    "concurrency": 10,
+    "dev_symbol_limit": 50,
+    "scan_pause_seconds": 15
   },
   "exchanges": {
     "bitmart": true,
