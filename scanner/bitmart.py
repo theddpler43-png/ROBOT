@@ -4,6 +4,7 @@ import aiohttp
 
 from scanner.metrics import (
     calc_execution_pct,
+    calc_market_score,
     calc_price_and_spread,
     calc_price_smoothness,
     calc_top5_depth,
@@ -110,24 +111,30 @@ async def scan_symbol(
         trades = await fetch_trades(session, symbol, trade_limit)
 
         price, _, _, spread = calc_price_and_spread(orderbook)
-
         top5_bid, top5_ask, top5_total = calc_top5_depth(orderbook)
 
         execution_ratio = calc_execution_pct(trades, orderbook)
         uniformity = calc_uniformity(trades)
         price_smoothness = calc_price_smoothness(trades)
 
+        score = calc_market_score(
+            execution_ratio,
+            uniformity,
+            price_smoothness,
+        )
+
         return MarketRow(
             exchange="BitMart",
             symbol=symbol.replace("_", "/"),
             execution_ratio=execution_ratio,
             uniformity=uniformity,
+            price_smoothness=price_smoothness,
+            score=score,
             spread=spread,
             top5_bid=round(top5_bid, 2),
             top5_ask=round(top5_ask, 2),
             top5_total=round(top5_total, 2),
             price=price,
-            price_smoothness=price_smoothness,
         )
 
     except Exception:
@@ -136,10 +143,11 @@ async def scan_symbol(
             symbol=symbol.replace("_", "/"),
             execution_ratio=None,
             uniformity=None,
+            price_smoothness=None,
+            score=None,
             spread=None,
             top5_bid=0.0,
             top5_ask=0.0,
             top5_total=0.0,
             price=None,
-            price_smoothness=None,
         )
