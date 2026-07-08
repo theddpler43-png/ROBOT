@@ -216,6 +216,158 @@ def calc_price_smoothness(trades: list[dict]) -> float | None:
     return round(max(0.0, min(100.0, score)), 2)
 
 
+def calc_execution_rhythm(trades: list[dict]) -> float | None:
+    """
+    Execution Rhythm.
+
+    Оценивает, насколько сделки идут ритмично.
+
+    Использует:
+    - timestamp;
+    - side.
+
+    100 = сделки идут с регулярными интервалами
+          и повторяемым buy/sell паттерном.
+
+    0 = интервалы и стороны сделок хаотичны.
+    """
+    prepared = _prepare_trades_with_time_and_side(trades)
+
+    if len(prepared) < 5:
+        return None
+
+    intervals = _trade_intervals(prepared)
+
+    if len(intervals) < 4:
+        return None
+
+    interval_score = _interval_stability_score(intervals)
+    side_score = _side_sequence_score(prepared)
+
+    score = (
+        interval_score * 0.70
+        + side_score * 0.30
+    )
+
+    return round(max(0.0, min(100.0, score)), 2)
+
+
+def _prepare_trades_with_time_and_side(
+    trades: list[dict],
+) -> list[dict]:
+    prepared: list[dict] = []
+
+    for trade in trades:
+        timestamp = safe_float(trade.get("timestamp"))
+        side = str(trade.get("side") or "").lower()
+
+        if timestamp is None:
+            continue
+
+        if side not in {"buy", "sell"}:
+            continue
+
+        prepared.append(
+            {
+                "timestamp": timestamp,
+                "side": side,
+            }
+        )
+
+    prepared.sort(
+        key=lambda item: item["timestamp"]
+    )
+
+    return prepared
+
+
+def _trade_intervals(
+    trades: list[dict],
+) -> list[float]:
+    intervals: list[float] = []
+
+    for previous, current in zip(trades, trades[1:]):
+        interval = current["timestamp"] - previous["timestamp"]
+
+        if interval > 0:
+            intervals.append(interval)
+
+    return intervals
+
+
+def _interval_stability_score(
+    intervals: list[float],
+) -> float:
+    if len(intervals) < 2:
+        return 0.0
+
+    mean = statistics.mean(intervals)
+
+    if mean <= 0:
+        return 0.0
+
+    stdev = statistics.pstdev(intervals)
+    cv = stdev / mean
+
+    return 100.0 / (1.0 + cv * 4.0)
+
+
+def _side_sequence_score(
+    trades: list[dict],
+) -> float:
+    sides = [
+        trade["side"]
+        for trade in trades
+    ]
+
+    if len(sides) < 4:
+        return 0.0
+
+    same_side_score = _same_side_streak_score(sides)
+    alternating_score = _alternating_side_score(sides)
+
+    return max(
+        same_side_score,
+        alternating_score,
+    )
+
+
+def _same_side_streak_score(
+    sides: list[str],
+) -> float:
+    longest = 1
+    current = 1
+
+    for previous, side in zip(sides, sides[1:]):
+        if side == previous:
+            current += 1
+        else:
+            longest = max(longest, current)
+            current = 1
+
+    longest = max(longest, current)
+
+    return min(
+        100.0,
+        longest / len(sides) * 100.0,
+    )
+
+
+def _alternating_side_score(
+    sides: list[str],
+) -> float:
+    if len(sides) < 2:
+        return 0.0
+
+    switches = 0
+
+    for previous, side in zip(sides, sides[1:]):
+        if side != previous:
+            switches += 1
+
+    return switches / (len(sides) - 1) * 100.0
+
+
 def _prices_from_levels(levels: list) -> list[float]:
     prices: list[float] = []
 
